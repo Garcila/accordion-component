@@ -1,0 +1,48 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.App {
+  margin: 10px;
+  display: grid;
+  justify-items: center;
+}
+
+.input-text {
+  padding: 10px;
+  margin: 2rem;
+  min-width: 400px;
+}
+
+/* 
+ul {
+  display: grid;
+  grid-template-columns: 1fr;
+} */
+.list-item {
+  display: grid;
+  grid-template-columns: 100px minmax(200px, 1fr);
+  align-items: center;
+}
+
+.horsie {
+  padding: 10px;
+  font-size: 2rem;
+  background-color: aquamarine;
+  border: 1px solid aqua;
+  color: #23506e;
+  align-self: stretch;
+}
+
+.sentence {
+  background-color: #0e9e6e;
+  border: 1px solid aqua;
+  color: #dee3e9;
+  padding: 10px;
+  font-size: 1rem;
+  align-self: stretch;
+}
