@@ -1,46 +1,36 @@
 import React, { Component } from 'react';
 import './App.css';
+import EmojiPicker from 'emoji-picker-react';
+import uniqid from 'uniqid';
+
+import fire from './fire.js';
+const firestore = fire.firestore();
+
+firestore.settings({
+	timestampsInSnapshots: true
+});
 
 class App extends Component {
 	constructor(props) {
 		super(props);
 
 		this.state = {
-			idCounter: 4,
-			items: [
-				{
-					id: 1,
-					view: true,
-					icon: '\u{1F30A}',
-					text: `Information is a lot like water; it's hard to hold on to, and hard to keep from leaking away.
-						― Ruth Ozeki, A Tale for the Time Being`
-				},
-				{
-					id: 2,
-					view: true,
-					icon: '\u{1F50D}',
-					text: `I believe it doesn't matter what it is, as long as you can find something concrete to keep you busy while you are living your meaningless life.” 
-					― Ruth Ozeki, A Tale for the Time Being`
-				},
-				{
-					id: 3,
-					view: true,
-					icon: '\u{23F2}',
-					text: `The past is weird. I mean, does it really exist ? It feels like it exists, but where is it ? And if it did exists, but doesn’t now, then where did it go ?
-					― Ruth Ozeki, A Tale for the Time Being`
-				},
-				{
-					id: 4,
-					view: true,
-					icon: '\u{1F480}',
-					text: `Where do words come from? They come from the dead. We inherit them. Borrow them. Use them for a time to bring the dead to life.
-					― Ruth Ozeki, A Tale for the Time Being`
-				}
-			]
+			items: []
 		};
 
 		this.toggle = this.toggle.bind(this);
 		this.addToList = this.addToList.bind(this);
+	}
+
+	componentDidMount() {
+		fire
+			.firestore()
+			.collection('items')
+			.onSnapshot(collection =>
+				this.setState({
+					items: collection.docs.map(doc => doc.data())
+				})
+			);
 	}
 
 	toggle(id) {
@@ -50,30 +40,43 @@ class App extends Component {
 	}
 
 	addToList(sentence) {
-		const id = this.state.idCounter + 1;
+		const id = uniqid();
+		fire
+			.firestore()
+			.collection('items')
+			.add({
+				id,
+				view: true,
+				text: sentence.text,
+				icon: sentence.icon
+			});
+
 		const newItem = {
 			id,
 			view: true,
 			text: sentence.text,
-			icon: `\u{1f43d}`
+			icon: sentence.icon
 		};
+
 		const items = [...this.state.items, newItem];
-		this.setState({ idCounter: id });
 		this.setState({ items });
 	}
 
 	render() {
-		const listItem = this.state.items.map(t => (
-			<li key={t.id} className="list-item">
-				{console.log(t.icon)}
-				<span className="horsie" onClick={() => this.toggle(t.id)}>
-					<span role="img" aria-label="unicorn-handPointing">
-						{t.view ? `${t.icon} \u{1f448}` : `${t.icon} \u{1F449}`}
+		const listItem =
+			this.state.items &&
+			this.state.items.map(t => (
+				<li key={t.id} className="list-item">
+					<span className="horsie" onClick={() => this.toggle(t.id)}>
+						<span role="img" aria-label="unicorn-handPointing">
+							{t.view
+								? `${t.icon} \u{1f448}`
+								: `${t.icon} \u{1F449}`}
+						</span>
 					</span>
-				</span>
-				{t.view ? <span className="sentence">{t.text}</span> : ''}
-			</li>
-		));
+					{t.view ? <span className="sentence">{t.text}</span> : ''}
+				</li>
+			));
 		return (
 			<div className="App">
 				<AddText addToList={this.addToList} />
@@ -88,7 +91,8 @@ class AddText extends Component {
 		super(props);
 		this.state = {
 			text: '',
-			emoji: ''
+			icon: '',
+			ep: false
 		};
 		this.handleChange = this.handleChange.bind(this);
 		this.submitChange = this.submitChange.bind(this);
@@ -106,9 +110,38 @@ class AddText extends Component {
 		}
 	}
 
+	togglePicker = e => {
+		e.preventDefault();
+		this.setState((state, props) => ({
+			ep: !state.ep
+		}));
+	};
+
 	render() {
 		return (
-			<form onSubmit={this.submitChange}>
+			<form className="get-sentence-form" onSubmit={this.submitChange}>
+				<button
+					className="toggle-emoji-picker"
+					onClick={this.togglePicker}
+					style={
+						this.state.icon
+							? { fontSize: '2rem' }
+							: { fontSize: '1rem' }
+					}
+				>
+					{this.state.icon || '+ Emoji'}
+				</button>
+				{this.state.ep ? (
+					<EmojiPicker
+						className="emoji-picker"
+						onEmojiClick={emoji => {
+							const icon = String.fromCodePoint(
+								parseInt(emoji, 16)
+							);
+							this.setState({ icon, ep: false });
+						}}
+					/>
+				) : null}
 				<textarea
 					className="input-text"
 					onChange={this.handleChange}

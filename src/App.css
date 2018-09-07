@@ -12,21 +12,38 @@
   justify-items: center;
 }
 
-.input-text {
-  padding: 10px;
+.get-sentence-form {
+  display: flex;
   margin: 2rem;
-  min-width: 400px;
+  height: 4rem;
 }
 
-/* 
-ul {
-  display: grid;
-  grid-template-columns: 1fr;
-} */
+.input-text {
+  padding: 10px;
+  min-width: 400px;
+  z-index: 1;
+}
+
+.toggle-emoji-picker {
+  padding: 10px;
+  /* font-size: 2rem; */
+}
+
+.emoji-picker {
+  z-index: 20;
+  align-self: stretch;
+  overflow: visible !important;
+}
+
+.emoji-picker .emoji-list {
+  background-color: #fafafa !important;
+}
+
 .list-item {
   display: grid;
   grid-template-columns: 100px minmax(200px, 1fr);
   align-items: center;
+  z-index: 2;
 }
 
 .horsie {
@@ -45,4 +62,5 @@ ul {
   padding: 10px;
   font-size: 1rem;
   align-self: stretch;
+  z-index: 2;
 }
